@@ -1,0 +1,112 @@
+CameraTopViewRear:
+  TransformComponent:
+    Translation: [0, 0, 0.02]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 3
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 5.0
+CameraTopViewRight:
+  TransformComponent:
+    Translation: [0, 0, 0.02]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 3
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 5.0
+CameraTopViewFront:
+  TransformComponent:
+    Translation: [0, 0, 0.01]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 3
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 5.0
+CameraTopViewLeft:
+  TransformComponent:
+    Translation: [0, 0, 0.02]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 3
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 5.0
+CameraRearCenter:
+  TransformComponent:
+    Translation: [0, 0, 0.01]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 2
+    GroundPlaneRadiusMin: 5.0
+    SphereRadius: 25
+CameraFrontRight:
+  TransformComponent:
+    Translation: [0, 0, 0.01]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 2
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 25
+CameraFrontCenter:
+  TransformComponent:
+    Translation: [0, 0, 0.005]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 2
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 24.95
+CameraFrontLeft:
+  TransformComponent:
+    Translation: [0, 0, 0.01]
+    Rotation: [0, 0, 0]
+    Scale: [1, 1, 1]
+  RenderableElementComponent:
+    StaticShow: true
+    RenderMode: 4
+    LineWidth: 1
+    PointSize: 1
+  VideoComponent:
+    ProjectionMode: 2
+    GroundPlaneRadiusMin: 0.01
+    SphereRadius: 25
