@@ -5,6 +5,9 @@
 #include "ui_operatorWidget.h"
 #include "IpAddressDeserializer.h"
 
+QString backgroundGreen("background-color:rgb(154,205,50)");
+QString backgroundRed("background-color:rgb(205,92,92)");
+
 OperatorManagerWidget::OperatorManagerWidget(const std::string& pathToInitialIpAddressFile,
 const std::string& searchedKey, QObject* operatorManager, QWidget *parent) :
     QMainWindow(parent),
@@ -31,9 +34,9 @@ const std::string& searchedKey, QObject* operatorManager, QWidget *parent) :
     addIpAddressesToComboBox();
 
     init_gui_status();
-    _ui->Label_EmergencyBreakReleased->setStyleSheet("background-color: red");
-    _ui->Label_LongReleased->setStyleSheet("background-color: red");
-    _ui->Label_LatReleased->setStyleSheet("background-color: red");
+    _ui->Label_EmergencyBreakReleased->setStyleSheet(backgroundRed);
+    _ui->Label_LongReleased->setStyleSheet(backgroundRed);
+    _ui->Label_LatReleased->setStyleSheet(backgroundRed);
 
     loadWidgetGeometryBeforeShow();
     this->show();
@@ -124,9 +127,6 @@ void OperatorManagerWidget::readAndStoreOwnIpAddresses() {
     if (ifAddrStruct != NULL) freeifaddrs(ifAddrStruct);
 
     // sort my ip addresses:
-    listWithPriorities.push_back(PRIO1);
-    listWithPriorities.push_back(PRIO2);
-    listWithPriorities.push_back(PRIO3);
     listWithPriorities.push_back(PRIO4);
     listWithPriorities.push_back(PRIO5);
 
@@ -234,32 +234,32 @@ void OperatorManagerWidget::change_button_status_after_clicked_on_disconnect() {
 
 void OperatorManagerWidget::on_PushButton_DirectControl_clicked() {
     emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_DIRECT);
-    control_buttons.switchFocusTo(_ui->PushButton_DirectControl);
+    control_buttons.switchFocusTo(_ui->PushButton_DirectControl, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_SharedControl_clicked() {
     emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_SHARED);
-    control_buttons.switchFocusTo(_ui->PushButton_SharedControl);
+    control_buttons.switchFocusTo(_ui->PushButton_SharedControl, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_WayPointControl_clicked() {
     emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_WAYPOINT);
-    control_buttons.switchFocusTo(_ui->PushButton_WayPointControl);
+    control_buttons.switchFocusTo(_ui->PushButton_WayPointControl, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_PathGuidance_clicked() {
     emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_PATH_GUIDANCE);
-    control_buttons.switchFocusTo(_ui->PushButton_PathGuidance);
+    control_buttons.switchFocusTo(_ui->PushButton_PathGuidance, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_ObjectModification_clicked() {
     emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_PERCEPTION_MODIFICATION);
-    control_buttons.switchFocusTo(_ui->PushButton_ObjectModification);
+    control_buttons.switchFocusTo(_ui->PushButton_ObjectModification, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_ClothoidControl_clicked() {
     emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_CLOTHOID);
-    control_buttons.switchFocusTo(_ui->PushButton_ClothoidControl);
+    control_buttons.switchFocusTo(_ui->PushButton_ClothoidControl, backgroundGreen);
 }
 
 void OperatorManagerWidget::quitAll() {
@@ -269,22 +269,22 @@ void OperatorManagerWidget::quitAll() {
 void OperatorManagerWidget::init_control_mode_button_highlighting(const uint8_t control_mode) {
     switch (control_mode) {
         case tod_msgs::Status::CONTROL_MODE_DIRECT :
-            control_buttons.switchFocusTo(_ui->PushButton_DirectControl);
+            control_buttons.switchFocusTo(_ui->PushButton_DirectControl, backgroundGreen);
             break;
         case tod_msgs::Status::CONTROL_MODE_SHARED :
-            control_buttons.switchFocusTo(_ui->PushButton_SharedControl);
+            control_buttons.switchFocusTo(_ui->PushButton_SharedControl, backgroundGreen);
         break;
         case tod_msgs::Status::CONTROL_MODE_WAYPOINT :
-            control_buttons.switchFocusTo(_ui->PushButton_WayPointControl);
+            control_buttons.switchFocusTo(_ui->PushButton_WayPointControl, backgroundGreen);
         break;
         case tod_msgs::Status::CONTROL_MODE_PATH_GUIDANCE :
-            control_buttons.switchFocusTo(_ui->PushButton_PathGuidance);
+            control_buttons.switchFocusTo(_ui->PushButton_PathGuidance, backgroundGreen);
         break;
         case tod_msgs::Status::CONTROL_MODE_PERCEPTION_MODIFICATION :
-            control_buttons.switchFocusTo(_ui->PushButton_ObjectModification);
+            control_buttons.switchFocusTo(_ui->PushButton_ObjectModification, backgroundGreen);
         break;
         case tod_msgs::Status::CONTROL_MODE_CLOTHOID :
-            control_buttons.switchFocusTo(_ui->PushButton_ClothoidControl);
+            control_buttons.switchFocusTo(_ui->PushButton_ClothoidControl, backgroundGreen);
         break;
     }
 }
@@ -292,13 +292,13 @@ void OperatorManagerWidget::init_control_mode_button_highlighting(const uint8_t 
 void OperatorManagerWidget::init_video_rate_control_mode_button_highlighting(const uint8_t video_rate_control_mode) {
     switch (video_rate_control_mode) {
         case tod_msgs::Status::VIDEO_RATE_CONTROL_MODE_SINGLE :
-            video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Single);
+            video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Single, backgroundGreen);
             break;
         case tod_msgs::Status::VIDEO_RATE_CONTROL_MODE_COLLECTIVE :
-            video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Collective);
+            video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Collective, backgroundGreen);
             break;
         case tod_msgs::Status::VIDEO_RATE_CONTROL_MODE_AUTOMATIC :
-            video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_PQOS);
+            video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_PQOS, backgroundGreen);
             break;
     }
 }
@@ -314,17 +314,17 @@ void OperatorManagerWidget::on_PushButton_BrowseAndOk_clicked() {
 
 void OperatorManagerWidget::on_PushButton_VideoRate_Single_clicked() {
     emit signal_video_rate_control_mode_changed(tod_msgs::Status::VIDEO_RATE_CONTROL_MODE_SINGLE);
-    video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Single);
+    video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Single, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_VideoRate_Collective_clicked() {
     emit signal_video_rate_control_mode_changed(tod_msgs::Status::VIDEO_RATE_CONTROL_MODE_COLLECTIVE);
-    video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Collective);
+    video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_Collective, backgroundGreen);
 }
 
 void OperatorManagerWidget::on_PushButton_VideoRate_PQOS_clicked() {
     emit signal_video_rate_control_mode_changed(tod_msgs::Status::VIDEO_RATE_CONTROL_MODE_AUTOMATIC);
-    video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_PQOS);
+    video_rate_buttons.switchFocusTo(_ui->PushButton_VideoRate_PQOS, backgroundGreen);
 }
 
 void OperatorManagerWidget::register_control_mode_buttons() {
@@ -399,21 +399,21 @@ void OperatorManagerWidget::long_approved(bool approved) {
 
 void OperatorManagerWidget::update_safety_driver_status_labels() {
     if ( gui_status.vehicle_emergency_stop_released ) {
-        _ui->Label_EmergencyBreakReleased->setStyleSheet("background-color: green");
+        _ui->Label_EmergencyBreakReleased->setStyleSheet(backgroundGreen);
     } else {
-        _ui->Label_EmergencyBreakReleased->setStyleSheet("background-color: red");
+        _ui->Label_EmergencyBreakReleased->setStyleSheet(backgroundRed);
     }
 
     if ( gui_status.vehicle_lat_approved ) {
-        _ui->Label_LatReleased->setStyleSheet("background-color: green");
+        _ui->Label_LatReleased->setStyleSheet(backgroundGreen);
     } else {
-        _ui->Label_LatReleased->setStyleSheet("background-color: red");
+        _ui->Label_LatReleased->setStyleSheet(backgroundRed);
     }
 
     if ( gui_status.vehicle_long_approved ) {
-        _ui->Label_LongReleased->setStyleSheet("background-color: green");
+        _ui->Label_LongReleased->setStyleSheet(backgroundGreen);
     } else {
-        _ui->Label_LongReleased->setStyleSheet("background-color: red");
+        _ui->Label_LongReleased->setStyleSheet(backgroundRed);
     }
 }
 

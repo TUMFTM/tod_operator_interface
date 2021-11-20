@@ -25,16 +25,16 @@ bool Serialization::DeserializeEntities(const std::string &pkgPath, const std::s
                 }
             }
 
-            if (entity.HasComponent<RenderableElementComponent>()) {
-                auto rcConfig = entityConfig["RenderableElementComponent"];
-                if (rcConfig) {
-                    auto &rc = entity.GetComponent<RenderableElementComponent>();
-                    rc.StaticShow = rcConfig["StaticShow"].as<bool>();
-                    rc.RenderMode = rcConfig["RenderMode"].as<GLenum>();
-                    rc.LineWidth = rcConfig["LineWidth"].as<float>();
-                    rc.PointSize = rcConfig["PointSize"].as<float>();
-                }
-            }
+            // if (entity.HasComponent<RenderableElementComponent>()) {
+            //     auto rcConfig = entityConfig["RenderableElementComponent"];
+            //     if (rcConfig) {
+            //         auto &rc = entity.GetComponent<RenderableElementComponent>();
+            //         rc.StaticShow = rcConfig["StaticShow"].as<bool>();
+            //         rc.RenderMode = rcConfig["RenderMode"].as<GLenum>();
+            //         rc.LineWidth = rcConfig["LineWidth"].as<float>();
+            //         rc.PointSize = rcConfig["PointSize"].as<float>();
+            //     }
+            // }
 
             if (entity.HasComponent<VideoComponent>()) {
                 auto pcConfig = entityConfig["VideoComponent"];
@@ -44,6 +44,10 @@ bool Serialization::DeserializeEntities(const std::string &pkgPath, const std::s
                         pcConfig["ProjectionMode"].as<int>());
                     pc.GroundPlaneRadiusMin = pcConfig["GroundPlaneRadiusMin"].as<float>();
                     pc.SphereRadius = pcConfig["SphereRadius"].as<float>();
+                    pc.SphereLongitudeMin = pcConfig["SphereLongitudeMin"].as<float>();
+                    pc.SphereLongitudeMax = pcConfig["SphereLongitudeMax"].as<float>();
+                    pc.SphereLatitudeMin = pcConfig["SphereLatitudeMin"].as<float>();
+                    pc.SphereLatitudeMax = pcConfig["SphereLatitudeMax"].as<float>();
                 }
             }
         }
@@ -70,16 +74,16 @@ void Serialization::SerializeEntities(const std::string &pkgPath, const std::str
             out << YAML::EndMap; // TransformComponent
         }
 
-        if (entity.HasComponent<RenderableElementComponent>()) {
-            out << YAML::Key << "RenderableElementComponent";
-            out << YAML::BeginMap; // RenderableElementComponent
-            const auto& rc = entity.GetComponent<RenderableElementComponent>();
-            out << YAML::Key << "StaticShow" << YAML::Value << rc.StaticShow;
-            out << YAML::Key << "RenderMode" << YAML::Value << rc.RenderMode;
-            out << YAML::Key << "LineWidth" << YAML::Value << rc.LineWidth;
-            out << YAML::Key << "PointSize" << YAML::Value << rc.PointSize;
-            out << YAML::EndMap; // RenderableElementComponent
-        }
+        // if (entity.HasComponent<RenderableElementComponent>()) {
+        //     out << YAML::Key << "RenderableElementComponent";
+        //     out << YAML::BeginMap; // RenderableElementComponent
+        //     const auto& rc = entity.GetComponent<RenderableElementComponent>();
+        //     out << YAML::Key << "StaticShow" << YAML::Value << rc.StaticShow;
+        //     out << YAML::Key << "RenderMode" << YAML::Value << rc.RenderMode;
+        //     out << YAML::Key << "LineWidth" << YAML::Value << rc.LineWidth;
+        //     out << YAML::Key << "PointSize" << YAML::Value << rc.PointSize;
+        //     out << YAML::EndMap; // RenderableElementComponent
+        // }
 
         if (entity.HasComponent<VideoComponent>()) {
             out << YAML::Key << "VideoComponent";
@@ -88,6 +92,10 @@ void Serialization::SerializeEntities(const std::string &pkgPath, const std::str
             out << YAML::Key << "ProjectionMode" << YAML::Value << pc.ProjectionMode;
             out << YAML::Key << "GroundPlaneRadiusMin" << YAML::Value << pc.GroundPlaneRadiusMin;
             out << YAML::Key << "SphereRadius" << YAML::Value << pc.SphereRadius;
+            out << YAML::Key << "SphereLongitudeMin" << YAML::Value << pc.SphereLongitudeMin;
+            out << YAML::Key << "SphereLongitudeMax" << YAML::Value << pc.SphereLongitudeMax;
+            out << YAML::Key << "SphereLatitudeMin" << YAML::Value << pc.SphereLatitudeMin;
+            out << YAML::Key << "SphereLatitudeMax" << YAML::Value << pc.SphereLatitudeMax;
             out << YAML::EndMap; // VideoComponent
         }
 

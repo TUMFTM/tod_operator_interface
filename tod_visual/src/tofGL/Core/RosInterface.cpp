@@ -20,9 +20,9 @@ bool RosInterface::init() {
     ros::start();
     ros::Time::init();
     _mouseClickPublisher = _nh->advertise<geometry_msgs::Point>(
-        "/mouse_position_click", 1);
+        "/Operator/Visual/MousePositionClick", 1);
     _keyPressPublisher = _nh->advertise<tod_msgs::KeyPress>(
-        "/key_press", 1);
+        "/Operator/Visual/KeyPress", 1);
     _rosThread = std::thread([this]{ run();});
     ros::Duration(2.0).sleep(); //wait for tf-putlisher to publish
 
@@ -48,6 +48,10 @@ void RosInterface::run() {
 
 std::string RosInterface::getNodeName() { return ros::this_node::getName(); }
 std::string RosInterface::getPackagePath() { return ros::package::getPath("tod_visual"); }
+
+std::string RosInterface::getPackagePath(std::string path) {
+   return ros::package::getPath(path);
+}
 
 geometry_msgs::TransformStamped RosInterface::tfLookup(
     const std::string& target_frame, const std::string& source_frame) {

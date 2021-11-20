@@ -24,9 +24,6 @@ InputDeviceController::InputDeviceController(int argc, char **argv) {
 
     _inputDevices["Virtual"] = std::make_shared<VirtualInputDevice>(axisCallback, buttonCallback);
     _inputDevices["Usb"] = std::make_shared<UsbInputDevice>(axisCallback, buttonCallback, errorCallback);
-#if SENSO
-    _inputDevices["Senso"] = std::make_unique<SensoInputDevice>(axisCallback, buttonCallback);
-#endif
     change_input_device(); //Default Parameter-File loaded in launch-File
 }
 

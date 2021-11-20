@@ -8,9 +8,6 @@
 #include <utility>
 #include "VirtualInputDevice.h"
 #include "UsbInputDevice.h"
-#if SENSO
-    #include "SensoInputDevice.h"
-#endif
 #include "RosInterface.h"
 #include "tod_msgs/joystickConfig.h"
 #include "tod_msgs/InputDevice.h"

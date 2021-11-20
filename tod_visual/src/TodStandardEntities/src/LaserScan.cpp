@@ -4,7 +4,7 @@
 namespace TodStandardEntities {
 
 Entity LaserScan::create(std::shared_ptr<Scene> scene, const std::string &name,
-                         Entity parent, const std::string& packagePath) {
+                         const std::string& packagePath) {
     Entity laserScanEntity = scene->CreateEntity(name);
     unsigned int shaderProgram = ShaderSystem::createShaderProgram(
         (packagePath + "/resources/OpenGL/shaders/shader.vert").c_str(),
@@ -14,13 +14,14 @@ Entity LaserScan::create(std::shared_ptr<Scene> scene, const std::string &name,
     renderable.PointSize = 7.0f;
     laserScanEntity.AddComponent<ExpirableComponent>(1000);
     laserScanEntity.AddComponent<DynamicDataComponent>();
-    laserScanEntity.GetComponent<TransformComponent>().setParent(parent);
     return laserScanEntity;
 }
 
-void LaserScan::onLaserScanReceived(const sensor_msgs::LaserScanConstPtr& msg, Entity &entity) {
+void LaserScan::onLaserScanReceived(const sensor_msgs::LaserScanConstPtr& msg, Entity &entity,
+                                    const std::map<std::string, Entity> &coordinateSystems) {
     auto &dynamic = entity.GetComponent<DynamicDataComponent>();
     std::lock_guard<std::mutex> lock(*dynamic.Mutex);
+    entity.GetComponent<TransformComponent>().setParent(coordinateSystems.at(msg->header.frame_id));
     auto &expirable = entity.GetComponent<ExpirableComponent>();
     expirable.restamp();
     auto &renderable = entity.GetComponent<RenderableElementComponent>();

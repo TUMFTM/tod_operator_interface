@@ -34,7 +34,7 @@ inline bool set_correction(const char *p, int _js) {
     p = strstr(p, ",");
 
     if (t != axes) {
-        std::cout << "UsbInputDevice::set_correction: joystick has different number of axes (" << axes
+        std::cout << "UsbInputDevice::set_correction: joystick has different number of axes (" << int(axes)
             << ") than specified in command line: " << t << std::endl;
         return false;
     }

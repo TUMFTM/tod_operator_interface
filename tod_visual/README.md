@@ -1,4 +1,5 @@
 # tod_visual
+
 The package provides a function-rich and flexible HMI for the operator to perform the teleoperation.
 It displays received data from the Perception and Bridge packages in various ways.
 A 3D world, comparable to the [rviz package](http://wiki.ros.org/rviz), is constructed using the OpenGL API. Inspired by the open
@@ -7,37 +8,48 @@ source [game engine Hazel](https://github.com/TheCherno/Hazel), this package use
 Snapshots of the HMI, exhibiting a view of the vehicle model and giving an impression of the projection of video streams
 on either rectangles or a spherical canvas, can be seen in the examples below.
 
-### Dependencies
-  * ROS Packages: see `package.xml`
-  * Third Party:
-    * assimp
-    * GLM
-    * glfw3 3.2
-    * Freetype
-    * yaml-cpp
-    * OpenGL
-    * OpenVR
-    ```
-    sudo apt-get install libassimp-dev -y
-    sudo apt-get install libglm-dev -y
-    sudo apt-get install libglfw3-dev -y
-    sudo apt-get install libfreetype6-dev -y
-    sudo apt-get install libyaml-cpp-dev -y
-    # OpenGL
-    sudo apt-get install build-essential libxmu-dev libxi-dev libgl-dev libosmesa-dev -y
-    sudo apt-get install libglew-dev -y
-    # OpenVR
-    sudo add-apt-repository multiverse -y
-    sudo apt-get install steam steam-devices libvulkan1 -y
-    cd /tmp && git clone https://github.com/ValveSoftware/openvr.git openvr
-    cd openvr && git checkout tags/v1.14.15
-    mkdir build && cd build && cmake .. && make -j32
-    sudo make install && sudo ldconfig
-    cd /tmp && sudo rm -r openvr && cd
-    ```
+## Usage
 
-### Documentation
-The HMI is constructed through a number of entities, listed in the following table. 
+It is possible to interact with the tod_visual and to change the camera perspective.
+The following key presses are used:
+
+* Arrow Up/Down/Left/Right: Circle around target point
+* Page Up/Down: Move target point up and down
+
+## Dependencies
+
+* ROS Packages: see `package.xml`
+* Third Party:
+  * assimp
+  * GLM
+  * glfw3 3.2
+  * Freetype
+  * yaml-cpp
+  * OpenGL
+  * OpenVR
+
+  ```bash
+  sudo apt-get install libassimp-dev -y
+  sudo apt-get install libglm-dev -y
+  sudo apt-get install libglfw3-dev -y
+  sudo apt-get install libfreetype6-dev -y
+  sudo apt-get install libyaml-cpp-dev -y
+  # OpenGL
+  sudo apt-get install build-essential libxmu-dev libxi-dev libgl-dev libosmesa-dev -y
+  sudo apt-get install libglew-dev -y
+  # OpenVR
+  sudo add-apt-repository multiverse -y
+  sudo apt-get install steam steam-devices libvulkan1 -y
+  cd /tmp && git clone https://github.com/ValveSoftware/openvr.git openvr
+  cd openvr && git checkout tags/v1.14.15
+  mkdir build && cd build && cmake .. && make -j32
+  sudo make install && sudo ldconfig
+  cd /tmp && sudo rm -r openvr && cd
+  ```
+
+## Documentation
+
+The HMI is constructed through a number of entities, listed in the following table.
 | Entity Class | Description | Sample Usage (and Subscriptions) |
 |---|---|---|
 | Base Footprint | To render the position of vehicle. | Track the states of vehicle. (`/Operator/VehicleBridge/odometry`) |
@@ -48,20 +60,21 @@ The HMI is constructed through a number of entities, listed in the following tab
 | Laser Scan | To render 2D lidar scans. | Display point cloud data. (`/Operator/Lidar/*/scan`) |
 | Path | To render paths. | Display projected vehicle motion (`/Operator/Projection/vehicle_lane_front_*`) |
 | Top View | To render rectangular display of scene, captured by another scene camera. | Display bird's eye view of scene. Usually useful for narrow corridor or parking maneuvers. |
-| Video | To render videos on video canvas (Supported projection modes: `RECTANGULAR=0`, `SPHERE=1`, `HALF_SPHERE_WITH_GROUND_PLANE=2`, `GROUND_PLANE=3`). | Display video streams. (`/Operator/Video/*/image_raw`) |
+| Video | To render videos on video canvas (Supported projection modes: `RECTANGULAR=0`, `SPHERE=1`, `HALF_SPHERE_WITH_GROUND_PLANE=2`, `GROUND_PLANE=3`, `ROBINSON=4` [unwrap sphere to flat surface]). | Display video streams. (`/Operator/Video/*/image_raw`) |
 
-The HMI also detects key presses and mouse clicks, published under the following topics. 
-  * `/Operator/Visual/KeyPress` [[tod_msgs/KeyPress](https://github.com/TUMFTM/tod_common/blob/master/tod_msgs/msg/KeyPress.msg)]
-  * `/Operator/Visual/MousePositionClick` [[geometry_msgs/Point](http://docs.ros.org/en/melodic/api/geometry_msgs/html/msg/Point.html)]
+The HMI also detects key presses and mouse clicks, published under the following topics.
 
-When launching the HMI with a given `vehicleID`, the data of some entities is partially serialized in `yaml/<vehicleID>.yaml`. This file can be modified before launching the HMI again. 
+* `/Operator/Visual/KeyPress` [[tod_msgs/KeyPress](https://github.com/TUMFTM/tod_common/blob/master/tod_msgs/msg/KeyPress.msg)]
+* `/Operator/Visual/MousePositionClick` [[geometry_msgs/Point](http://docs.ros.org/en/melodic/api/geometry_msgs/html/msg/Point.html)]
 
+When launching the HMI with a given `vehicleID`, the data of some entities is partially serialized in `yaml/<vehicleID>.yaml`. This file can be modified before launching the HMI again.
 
-### Example
+## Example
+
 Examples of the HMI with videos being displayed on a spherical video canvas or on rectangles.
 ![Alt](doc/visual_sphere.png "display of videos on sphere")
 ![Alt](doc/visual_rectangle.png "display of videos on rectangles")
 
+## Demo
 
-### Demo
 *coming soon*

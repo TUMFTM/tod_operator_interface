@@ -10,8 +10,8 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-#include <tod_projection_helper/PinholeModel.h>
-#include <tod_projection_helper/OcamModel.h>
+#include <tod_helper/camera_models/PinholeModel.h>
+#include <tod_helper/camera_models/OcamModel.h>
 
 namespace TodStandardEntities {
 

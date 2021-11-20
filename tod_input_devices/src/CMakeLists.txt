@@ -8,7 +8,7 @@ endif()
 # ------------------------- Add Specific Input Devices -----------------
 # adds target to variable DEVICE_TARGETS
 add_subdirectory(VirtualDevice)
-add_subdirectory(USBDevice)
+add_subdirectory(UsbInputDevice)
 
 # ------------------ Specify Files for InputDeviceController -----------
 set(GENERAL_CPP
@@ -18,7 +18,7 @@ set(GENERAL_CPP
         General/InputDevice.cpp
 )
 
-# --------------------------- Build Executable ------------------------
+# --------------------------- Build Executables ------------------------
 add_executable(InputDevice ${GENERAL_CPP})
 target_compile_features(InputDevice PRIVATE cxx_std_17)
 add_dependencies(InputDevice ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -30,8 +30,17 @@ target_link_libraries(InputDevice
     ${catkin_LIBRARIES}
     stdc++fs
 )
+
+add_executable(UsbEventHandler UsbEventHandlerNode.cpp UsbEventDevice/UsbEventDevice.cpp)
+target_compile_features(UsbEventHandler PRIVATE cxx_std_17)
+target_link_libraries(UsbEventHandler ${catkin_LIBRARIES})
+target_include_directories(UsbEventHandler PRIVATE ${catkin_INCLUDE_DIRS})
+
+
 install(TARGETS
     InputDevice
+    UsbEventHandler
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
 

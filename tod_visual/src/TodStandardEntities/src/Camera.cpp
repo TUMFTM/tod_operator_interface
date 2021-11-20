@@ -11,4 +11,19 @@ Entity Camera::create(std::shared_ptr<Scene> scene, std::string name, Entity par
     return camera;
 }
 
+void Camera::onGearUpdate(const tod_msgs::VehicleDataConstPtr& msg, Entity &entity) {
+    static eGearPosition previousGear{eGearPosition::GEARPOSITION_PARK};
+    if (msg->gearPosition == eGearPosition::GEARPOSITION_REVERSE &&
+        previousGear != eGearPosition::GEARPOSITION_REVERSE) {
+            entity.GetComponent<CameraComponent>().Yaw = 180.0f;
+            entity.GetComponent<CameraComponent>().Radius = 0.0f;
+    }
+    if (msg->gearPosition != eGearPosition::GEARPOSITION_REVERSE &&
+            previousGear == eGearPosition::GEARPOSITION_REVERSE) {
+        entity.GetComponent<CameraComponent>().Yaw = 0.0f;
+        entity.GetComponent<CameraComponent>().Radius = 1.5f;
+    }
+    previousGear = static_cast<eGearPosition>(msg->gearPosition);
+}
+
 }; // namespace TodStandardEntities

@@ -179,7 +179,7 @@
      </size>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: green</string>
+     <string notr="true">background-color: rgb(154,205,50)</string>
     </property>
     <property name="text">
      <string>Direct Control</string>
@@ -220,7 +220,7 @@
      </size>
     </property>
     <property name="text">
-     <string>Object Modification</string>
+     <string>Perc Modification</string>
     </property>
    </widget>
    <widget class="QLabel" name="Label_ControlMode">
@@ -278,7 +278,7 @@
      </size>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: green</string>
+     <string notr="true">background-color:rgb(154,205,50)</string>
     </property>
     <property name="text">
      <string>Single</string>

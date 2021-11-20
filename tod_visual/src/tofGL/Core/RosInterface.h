@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <tf2_ros/transform_listener.h>
@@ -23,6 +24,7 @@ public:
     void setKeyPressForPublish(const tod_msgs::KeyPress &keyiPress);
     static std::string getNodeName();
     static std::string getPackagePath();
+    static std::string getPackagePath(std::string path);
     geometry_msgs::TransformStamped tfLookup(const std::string& target_frame, const std::string& source_frame);
     bool debug;
 
@@ -30,6 +32,15 @@ public:
     void addSubscriber(const std::string& topicName, TF&& func, const Entity& entity) {
         if (_nh) {
             _subscriberList.push_back(_nh->subscribe<T>(topicName, 1, boost::bind(func, _1, entity)));
+        }
+    }
+
+    template <typename T, typename TF>
+    void addSubscriber(const std::string& topicName, TF&& func,
+                       const Entity& entity, const std::map<std::string, Entity> &coordinateSystems) {
+        if (_nh) {
+            _subscriberList.push_back(_nh->subscribe<T>(
+                topicName, 1, boost::bind(func, _1, entity, coordinateSystems)));
         }
     }
 

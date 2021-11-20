@@ -7,6 +7,8 @@
 #include "TodStandardEntities/src/Floor.h"
 #include "TodStandardEntities/src/Grid.h"
 #include "TodStandardEntities/src/LaserScan.h"
+#include "TodStandardEntities/src/ObjectList.h"
 #include "TodStandardEntities/src/Path.h"
+#include "TodStandardEntities/src/Polygon.h"
 #include "TodStandardEntities/src/TopView.h"
 #include "TodStandardEntities/src/Video.h"

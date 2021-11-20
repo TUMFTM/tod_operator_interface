@@ -11,7 +11,9 @@ set(project_sources
     src/Path.cpp
     src/TopView.cpp
     src/Video.cpp
-    )
+    src/ObjectList.cpp
+    src/Polygon.cpp
+)
 
 add_library(TodStandardEntities ${project_sources} include/TodStandardEntities/TodStandardEntities.h)
 target_include_directories(TodStandardEntities

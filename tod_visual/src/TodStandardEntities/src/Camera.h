@@ -5,6 +5,8 @@
 #include "Scene/Scene.h"
 #include <string>
 #include <memory>
+#include "tod_msgs/VehicleData.h"
+#include "tod_msgs/VehicleEnums.h"
 
 namespace TodStandardEntities {
 
@@ -14,6 +16,7 @@ private:
 
 public:
     static Entity create(std::shared_ptr<Scene> scene, std::string name, Entity parent);
+    static void onGearUpdate(const tod_msgs::VehicleDataConstPtr& msg, Entity &entity);
 };
 
 }; // namespace TodStandardEntities

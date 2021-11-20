@@ -21,8 +21,9 @@ Entity CoordinateSystem::create(
     return coordinateSystem;
 }
 
-std::map<std::string, Entity> CoordinateSystem::createTransformTree(
-    std::shared_ptr<Scene> scene, const std::string &packagePath, Entity& cosysBaseFootPrint) {
+void CoordinateSystem::createTransformTree(
+    std::map<std::string, Entity> &coordinateSystems, std::shared_ptr<Scene> scene,
+    const std::string &packagePath, Entity& cosysBaseFootPrint) {
     std::string parent{"base_footprint"};
     checkIfTagMatchesKey(cosysBaseFootPrint, parent);
 
@@ -31,21 +32,19 @@ std::map<std::string, Entity> CoordinateSystem::createTransformTree(
         CommonTransformTreePublisher::getTransformTreeFromParamServer(
             "/Operator/Transform/CommonTransformTreePublisher", nodeHandle);
 
-    std::map<std::string, Entity> mapOfEntities;
     for ( auto& childTfStamped : tfsStamped ) {
         tf2::Transform goalTf;
         convert(childTfStamped, goalTf);
         geometry_msgs::TransformStamped tf2parent = getTransformFromChildTo(parent, childTfStamped, tfsStamped, goalTf);
         if ( tf2parent.header.frame_id == parent ) {
-            std::string entityName { "Cosys" + childTfStamped.child_frame_id };
-            Entity newCosys = TodStandardEntities::CoordinateSystem::create(scene, entityName, packagePath);
-            mapOfEntities.insert_or_assign(entityName, newCosys);
+            Entity newCosys = TodStandardEntities::CoordinateSystem::create(
+                scene, "Cosys" + childTfStamped.child_frame_id, packagePath);
+            coordinateSystems.insert_or_assign(childTfStamped.child_frame_id, newCosys);
             setTranslationAndRotation(newCosys, goalTf);
             newCosys.GetComponent<TransformComponent>().setParent(cosysBaseFootPrint);
             newCosys.GetComponent<RenderableElementComponent>().StaticShow = false;
         }
     }
-    return mapOfEntities;
 }
 
 void CoordinateSystem::checkIfTagMatchesKey(Entity &entity, const std::string& key) {

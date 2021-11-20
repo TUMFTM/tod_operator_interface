@@ -12,12 +12,13 @@ void QtWidgetGroup::enableButtons(const bool& enable) {
     }
 }
 
-void QtWidgetGroup::switchFocusTo(const QWidget* focusWidget) {
+void QtWidgetGroup::switchFocusTo(const QWidget* focusWidget, const QString& backgroundStr) {
     for (auto widget = widgets.begin(); widget != widgets.end(); ++widget) {
         if ( (*widget) == focusWidget ) {
-            (*widget)->setStyleSheet("background-color: green");
+            (*widget)->setStyleSheet(backgroundStr);
         } else {
             (*widget)->setStyleSheet("");
         }
     }
 }
+

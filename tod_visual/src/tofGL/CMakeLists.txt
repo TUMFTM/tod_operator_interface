@@ -18,6 +18,7 @@ set(ogl_sources
     Core/Application.cpp
     Core/CameraController.cpp
     Core/DataContainer.h
+    Core/ModelLoader.cpp
     Core/CursorPosition.cpp
     Core/GraphicsContext.cpp
     Core/RenderCommand.cpp

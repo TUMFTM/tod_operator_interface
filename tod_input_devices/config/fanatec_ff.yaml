@@ -20,17 +20,18 @@ AxisConfig:
 InputDeviceHasSeparateBrakingAxis: true #If False: AxisRange/Brake is ignored (see below)
 
 InvertAxis:
-  "Steering": true
+  "Steering": true 
   "Throttle": true
   "Brake": true
 
-Correction: "10,\
+Correction: "11,\
   1,255,32767,32767,18000,18000,\
   1,0,0,0,0,0,\
   1,255,32767,32767,18000,18000,\
   1,0,0,0,0,0,\
   1,0,0,0,0,0,\
   1,255,32767,32767,18000,18000,\
+  1,0,0,0,0,0,\
   1,0,0,0,0,0,\
   1,0,0,0,0,0,\
   1,0,0,0,0,0,\

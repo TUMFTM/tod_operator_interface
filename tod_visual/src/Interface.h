@@ -20,6 +20,7 @@ static const float PI{3.14159f};
 
 #include "Core/Application.h"
 #include "Core/CursorPosition.h"
+#include "Core/ModelLoader.h"
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/Scene.h"
@@ -32,14 +33,14 @@ public:
 
 private:
     void CreateScene();
-    void CreateCosysEntities(Entity &CosysOrigin, Entity &CosysBaseFootprint,
-                             std::map<std::string, Entity> &mapOfRelativeCosysEntities);
-    void CreateDisplayEntities(const Entity &CosysBaseFootprint);
-    void CreateGridAndFloorEntities(const Entity &CosysBaseFootprint);
-    void CreateCameraFramebufferAndTopViewEntities(const Entity &CosysBaseFootprint);
-    void CreateVideoEntities(const Entity &CosysBaseFootprint);
-    void CreateLaneEntities(const Entity &CosysBaseFootprint);
-    void CreateLaserScanEntities(const std::map<std::string, Entity> &mapOfRelativeCosysEntities);
+    void CreateCosysEntities(std::map<std::string, Entity> &coordinateSystems);
+    void CreateDisplayEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateVehicleModelEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateGridAndFloorEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateCameraFramebufferAndTopViewEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateVideoEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateLaneEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateLaserScanEntities(const std::map<std::string, Entity> &coordinateSystems);
     bool DeserializeEntityData(const std::string &vehicleID);
     void CreateVideoMeshes(const bool couldDeserialize, const std::string &vehicleID);
 };

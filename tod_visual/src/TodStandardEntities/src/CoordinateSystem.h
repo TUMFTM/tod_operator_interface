@@ -17,8 +17,8 @@ class CoordinateSystem {
 public:
     static Entity create(std::shared_ptr<Scene> scene,
                          std::string name, const std::string& packagePath);
-    static std::map<std::string, Entity> createTransformTree(
-        std::shared_ptr<Scene> scene, const std::string &packagePath, Entity& cosysBaseFootPrint);
+    static void createTransformTree(std::map<std::string, Entity> &coordinateSystems, std::shared_ptr<Scene> scene,
+        const std::string &packagePath, Entity& cosysBaseFootPrint);
 
 private:
     CoordinateSystem() = default;

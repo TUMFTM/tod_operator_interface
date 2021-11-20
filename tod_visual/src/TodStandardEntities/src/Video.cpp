@@ -19,7 +19,7 @@ Entity Video::create(std::shared_ptr<Scene> scene, const std::string &camName, c
     for (auto& pxBuf : videoCmp.PixelBuffers)
         mesh.Textures.emplace_back(Texture(pxBuf.Width, pxBuf.Height, pxBuf.Name, GL_TEXTURE_RECTANGLE));
     videoEntity.AddComponent<RenderableElementComponent>(videoShader, mesh);
-    videoEntity.AddComponent<ExpirableComponent>(1000);
+    videoEntity.AddComponent<ExpirableComponent>(1500);
     videoEntity.AddComponent<DynamicDataComponent>();
     videoEntity.GetComponent<TransformComponent>().setParent(parent);
     return videoEntity;
@@ -92,7 +92,8 @@ void Video::init_mesh(Entity &ent, const T &camMdl, const geometry_msgs::Transfo
             get_points_on_ground_plane(rowsOnSphere, maxRowLength, video, camMdl, tf2cam);
         }
         if ((video.ProjectionMode == VideoComponent::ProjectionModeType::SPHERE)
-            || (video.ProjectionMode == VideoComponent::ProjectionModeType::HALF_SPHERE_WITH_GROUND_PLANE)) {
+            || (video.ProjectionMode == VideoComponent::ProjectionModeType::HALF_SPHERE_WITH_GROUND_PLANE)
+            || (video.ProjectionMode == VideoComponent::ProjectionModeType::ROBINSON)) {
             get_points_on_sphere(rowsOnSphere, maxRowLength, video, camMdl, tf2cam);
         }
         push_triangles_to_renderable(rowsOnSphere, maxRowLength, renderable);
@@ -113,12 +114,11 @@ template <typename T>
 void Video::get_points_on_ground_plane
     (std::vector<std::vector<Vertex>> &rowsOnSphere, size_t &maxRowLength,
      const VideoComponent &video, const T& camMdl, const geometry_msgs::TransformStamped &tf) {
-    float lonMin{-3.1415f}, lonMax{+3.1415f};
     for (float myRad = video.GroundPlaneRadiusMin;
          myRad <= video.SphereRadius;
          myRad += SPHERE_MESH_INCREMENT) {
         std::vector<Vertex> verticesInRow;
-        for (float lon = lonMax; lon >= lonMin; lon -= SPHERE_MESH_INCREMENT) {
+        for (float lon = video.SphereLongitudeMax; lon >= video.SphereLongitudeMin; lon -= SPHERE_MESH_INCREMENT) {
             geometry_msgs::Pose ptOnSphere, poseOut;
             ptOnSphere.orientation.w = 1.0;
             ptOnSphere.position.x = myRad * std::cos(lon);
@@ -147,14 +147,13 @@ template <typename T>
 void Video::get_points_on_sphere
     (std::vector<std::vector<Vertex>> &rowsOnSphere, size_t &maxRowLength,
      const VideoComponent &video, const T &vidParams, const geometry_msgs::TransformStamped &tf) {
-    float latMin = (video.ProjectionMode ==
-                    VideoComponent::ProjectionModeType::HALF_SPHERE_WITH_GROUND_PLANE)
-                       ? 0.0f : -3.1415f / 2.0f;
-    float latMax{60.0f * 3.1415f / 180.0f};
-    float lonMin{-3.1415f}, lonMax{+3.1415f};
+    float latMin = video.SphereLatitudeMin;
+    if (video.ProjectionMode == VideoComponent::ProjectionModeType::HALF_SPHERE_WITH_GROUND_PLANE)
+        latMin = std::max(latMin, 0.0f);
+    float latMax = video.SphereLatitudeMax;
     for (float lat = latMin; lat <= latMax; lat += SPHERE_MESH_INCREMENT) {
         std::vector<Vertex> verticesInRow;
-        for (float lon = lonMax; lon >= lonMin; lon -= SPHERE_MESH_INCREMENT) {
+        for (float lon = video.SphereLongitudeMax; lon >= video.SphereLongitudeMin; lon -= SPHERE_MESH_INCREMENT) {
             // tf point on sphere in camera coords
             geometry_msgs::Pose ptOnSphere, poseOut;
             ptOnSphere.orientation.w = 1.0;
@@ -167,6 +166,14 @@ void Video::get_points_on_sphere
             // tf in pixel coords
             int x_px{0}, y_px{0};
             if (vidParams.point_on_image(poseOut.position, x_px, y_px)) {
+                if (video.ProjectionMode == VideoComponent::ProjectionModeType::ROBINSON) {
+                    // equations following Savric et al.: A Polynomial Equation for the Natural Earth Projection
+                    double A0{0.8507}, A1{0.9642}, A2{-0.1450};
+                    double A3{-0.0013}, A4{-0.0104}, A5{-0.0129};
+                    ptOnSphere.position.x = video.SphereRadius;
+                    ptOnSphere.position.y = video.SphereRadius*lon*(A0 + A2*std::pow(lat, 2) + A4*std::pow(lat, 4));
+                    ptOnSphere.position.z = video.SphereRadius*(A1*lat + A3*std::pow(lat, 3) + A5*std::pow(lat, 5));
+                }
                 verticesInRow.push_back(Vertex(glm::vec3(ptOnSphere.position.x,
                                                          ptOnSphere.position.y,
                                                          ptOnSphere.position.z),

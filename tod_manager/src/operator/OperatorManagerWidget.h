@@ -36,9 +36,6 @@ class OperatorManagerWidget;
 }
 
 // sort function is used in order to provide the operator the most likely Ip Address of his computer
-inline std::string PRIO1 { "10.100.199." }; // IMPORTANT: To consider more than 4 arguments,
-inline std::string PRIO2 { "10.162.44." }; // IMPORTANT: To consider more than 4 arguments,
-inline std::string PRIO3 { "10.100.100." }; //          change code @readAndStoreOwnIpAddresses();
 inline std::string PRIO4 { "127.0.0." };
 inline std::string PRIO5 { "192.168." };
 inline std::vector<std::string> listWithPriorities;

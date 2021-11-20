@@ -90,7 +90,8 @@ struct VideoComponent {
         RECTANGULAR = 0,
         SPHERE = 1,
         HALF_SPHERE_WITH_GROUND_PLANE = 2,
-        GROUND_PLANE = 3
+        GROUND_PLANE = 3,
+        ROBINSON = 4
     };
 
     struct PixelBuffer {
@@ -112,6 +113,8 @@ struct VideoComponent {
     ProjectionModeType ProjectionMode{ProjectionModeType::RECTANGULAR};
     float GroundPlaneRadiusMin{0.01f};
     float SphereRadius{15.0f}; // also used as GroundPlaneRadiusMax
+    float SphereLongitudeMin{-3.1415f}, SphereLongitudeMax{+3.1415f};
+    float SphereLatitudeMin{-1.5708f}, SphereLatitudeMax{+1.0472f};
 
     int WidthRaw{0}, HeightRaw{0};
     float ScalingX{1.0}, ScalingY{1.0};
@@ -150,8 +153,6 @@ struct VRComponent {
 };
 
 struct FrameBufferComponent {
-    // TODO(Simon): see comments below
-    // from VR stuff .... merge with learnopengl below
     GLuint RenderTextureId;
     unsigned int fbo{0}, rbo{0};
 
