@@ -10,9 +10,13 @@ void Interface::CreateScene() {
     std::map<std::string, Entity> coordinateSystems;
     CreateCosysEntities(coordinateSystems);
     CreateCameraFramebufferAndTopViewEntities(coordinateSystems);
+    CreateRouteEntity(coordinateSystems);
     CreateDisplayEntities(coordinateSystems);
     CreateVehicleModelEntities(coordinateSystems);
     CreateGridAndFloorEntities(coordinateSystems);
+    // ORDER MATTERS FOR TRANSPARENCY --> OBJECTS INIT BEFORE VIDEO STREAMS
+    CreateMouseClickVisualization(coordinateSystems);
+    CreatePerceptionModificationEntities(coordinateSystems);
     CreateVideoEntities(coordinateSystems);
     CreateLaneEntities(coordinateSystems);
     CreateLaserScanEntities(coordinateSystems);
@@ -259,3 +263,34 @@ void Interface::CreateVideoMeshes(const bool couldDeserialize, const std::string
         }
     }
 }
+
+
+void Interface::CreateRouteEntity(const std::map<std::string, Entity> &coordinateSystems) {
+    Entity routeEntity = TodStandardEntities::MeshEntity::create(
+        _activeScene, "RouteEntity", coordinateSystems.at("ftm"), RosInterface::getPackagePath());
+    _ros->addSubscriber<tod_msgs::Mesh>(
+        "/Operator/Visual/RouteAsMesh", TodStandardEntities::MeshEntity::onRouteReceived, routeEntity);
+}
+
+void Interface::CreateMouseClickVisualization(const std::map<std::string, Entity> &coordinateSystems) {
+    Entity mouseClickList = TodStandardEntities::MouseClickList::create(
+        _activeScene, "MouseClickList", coordinateSystems.at("ftm"), RosInterface::getPackagePath());
+    _ros->addSubscriber<sensor_msgs::PointCloud>(
+        "/Operator/PerceptionModification/MouseClickList", TodStandardEntities::MouseClickList::onMouseClickListReceived, mouseClickList);
+}
+
+void Interface::CreatePerceptionModificationEntities(const std::map<std::string, Entity> &coordinateSystems) {
+    Entity mouseClickArea = TodStandardEntities::MouseClickedArea::create(
+        _activeScene, "MouseClickArea", coordinateSystems.at("ftm"), RosInterface::getPackagePath());
+    _ros->addSubscriber<sensor_msgs::PointCloud>(
+        "/Operator/PerceptionModification/MouseClickListForAreaVisualization",
+        TodStandardEntities::MouseClickedArea::onMouseClickListReceived,
+        mouseClickArea);
+
+    Entity ObjectList = TodStandardEntities::ObjectList::create(
+        _activeScene, "ObjectList", RosInterface::getPackagePath());
+    _ros->addSubscriber<tod_msgs::Mesh>(
+        "/Operator/PerceptionModification/ModifiedObjectListAsMesh",
+        TodStandardEntities::MeshEntity::processMeshMsg, ObjectList);
+}
+

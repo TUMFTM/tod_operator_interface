@@ -43,4 +43,7 @@ private:
     void CreateLaserScanEntities(const std::map<std::string, Entity> &coordinateSystems);
     bool DeserializeEntityData(const std::string &vehicleID);
     void CreateVideoMeshes(const bool couldDeserialize, const std::string &vehicleID);
+    void CreateRouteEntity(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateMouseClickVisualization(const std::map<std::string, Entity> &coordinateSystems);
+    void CreatePerceptionModificationEntities(const std::map<std::string, Entity> &coordinateSystems);
 };

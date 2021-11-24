@@ -8,6 +8,9 @@ set(project_sources
     src/Floor.cpp
     src/Grid.cpp
     src/LaserScan.cpp
+    src/MeshEntity.cpp
+    src/MouseClickList.cpp
+    src/MouseClickedArea.cpp
     src/Path.cpp
     src/TopView.cpp
     src/Video.cpp
