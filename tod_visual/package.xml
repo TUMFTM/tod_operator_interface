@@ -19,7 +19,6 @@
 <build_depend>tf2_ros</build_depend>
 <build_depend>roslib</build_depend>
 <build_depend>tod_msgs</build_depend>
-<build_depend>tod_vehicle_bridge</build_depend>
 <build_depend>tod_transform</build_depend>
 <build_depend>tod_helper</build_depend>
 
@@ -29,7 +28,6 @@
 <build_export_depend>tf2_ros</build_export_depend>
 <build_export_depend>roslib</build_export_depend>
 <build_export_depend>tod_msgs</build_export_depend>
-<build_export_depend>tod_vehicle_bridge</build_export_depend>
 <build_export_depend>tod_transform</build_export_depend>
 <build_export_depend>tod_helper</build_export_depend>
 

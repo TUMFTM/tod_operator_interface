@@ -12,13 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
     tf2_ros
     roslib
     tod_msgs
-    tod_vehicle_bridge
     tod_transform
     tod_helper
 )
 
 catkin_package(
-    CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs tf2_ros roslib tod_msgs tod_vehicle_bridge tod_transform tod_helper
+    CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs tf2_ros roslib tod_msgs tod_transform tod_helper
 )
 
 option(OPERATOR "Build operator targets" ON)
