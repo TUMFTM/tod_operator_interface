@@ -1,38 +1,22 @@
 // Copyright 2020 TUMFTM
 #pragma once
-#include <ros/ros.h>
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
 #include "Scene/Scene.h"
 #include "Systems/ShaderSystem.h"
-#include "tod_transform/CommonTransformTreePublisher.h"
-#include <map>
-#include <memory>
+#include "Core/RosInterface.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace TodStandardEntities {
 
 class CoordinateSystem {
 public:
-    static Entity create(std::shared_ptr<Scene> scene,
-                         std::string name, const std::string& packagePath);
-    static void createTransformTree(std::map<std::string, Entity> &coordinateSystems, std::shared_ptr<Scene> scene,
-        const std::string &packagePath, Entity& cosysBaseFootPrint);
+    static Entity create(std::shared_ptr<Scene> scene, const std::string &name);
 
 private:
     CoordinateSystem() = default;
-    static void checkIfTagMatchesKey(Entity& tagname, const std::string& key);
-    static void setTranslationAndRotation(Entity& entity,
-                                          const tf2::Transform &tf2set);
-    static geometry_msgs::TransformStamped getTransformFromChildTo(const std::string &desiredParent,
-        const geometry_msgs::TransformStamped &child,
-        const std::vector<geometry_msgs::TransformStamped>& tfsStamped,
-        tf2::Transform& goalTransform);
-    static void convert(const geometry_msgs::TransformStamped& from, tf2::Transform &to);
-    static bool getParent(geometry_msgs::TransformStamped &relativeParent,
-        const geometry_msgs::TransformStamped &child,
-        const std::vector<geometry_msgs::TransformStamped> &transforms);
 };
 
-}; // namespace TodStandardEntities
+} // namespace TodStandardEntities

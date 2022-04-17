@@ -21,8 +21,7 @@ void Scene::OnUpdate() {
     UpdateCameras();
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    if (modelPoseChanged())
-        UpdateModel();
+    UpdateModel();
 
     auto t2 = std::chrono::high_resolution_clock::now();
     UploadData();

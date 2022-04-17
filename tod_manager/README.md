@@ -11,12 +11,6 @@ This ROS package establishes the connection between an operator and a vehicle. T
   sudo apt-get install qt5-default -y
   ```
 
-* yaml-cpp
-
-  ```bash
-  sudo apt-get install libyaml-cpp-dev -y
-  ```
-
 * [PahoMqttCpp](https://github.com/eclipse/paho.mqtt.cpp): Install instructions can be found in the [tod_network](https://github.com/TUMFTM/tod_common/tree/master/tod_network/) package.
 
 ## Documentation

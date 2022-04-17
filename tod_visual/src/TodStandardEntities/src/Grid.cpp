@@ -6,13 +6,12 @@ namespace TodStandardEntities {
 Entity Grid::create(std::shared_ptr<Scene> scene, const std::string &name, const std::string &packagePath) {
     Entity grid = scene->CreateEntity(name);
     unsigned int shader = ShaderSystem::createShaderProgram(
-        (packagePath + "/resources/OpenGL/shaders/shader.vert").c_str(),
-        (packagePath + "/resources/OpenGL/shaders/shader.frag").c_str());
+        (packagePath + "/resources/OpenGL/shaders/grid.vert").c_str(),
+        (packagePath + "/resources/OpenGL/shaders/grid.frag").c_str());
     Mesh mesh = init_grid_mesh(1, 1000);
     grid.AddComponent<RenderableElementComponent>(shader, mesh, GL_LINES);
     return grid;
 }
-
 
 Mesh Grid::init_grid_mesh(const float gridSpacing, const int gridSize) {
     std::vector<Vertex> vertices;

@@ -524,7 +524,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="PushButton_ClothoidControl">
+   <widget class="QPushButton" name="PushButton_SafeCorridorControl">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -540,7 +540,7 @@
      </size>
     </property>
     <property name="text">
-     <string>Clothoid Control</string>
+     <string>Safe Corridor</string>
     </property>
    </widget>
    <widget class="QPushButton" name="PushButton_BrowseAndOk">

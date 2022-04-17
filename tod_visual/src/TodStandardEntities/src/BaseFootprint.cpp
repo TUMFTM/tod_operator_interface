@@ -10,6 +10,7 @@ void BaseFootprint::onPositionUpdate(const nav_msgs::OdometryConstPtr& msg, Enti
         return;
     prevUpdate = ros::Time::now();
 
+
     auto& dynamic = entity.GetComponent<DynamicDataComponent>();
     std::lock_guard<std::mutex> lock(*dynamic.Mutex);
     double r, p, y;
@@ -17,6 +18,7 @@ void BaseFootprint::onPositionUpdate(const nav_msgs::OdometryConstPtr& msg, Enti
                         msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
     tf::Matrix3x3(quat).getRPY(r, p, y);
     auto& transComp = entity.GetComponent<TransformComponent>();
+    checkParentFrameConsistency(transComp, msg->header);
     if (msg->pose.pose.position.x > 60000.0f) {
         transComp.setTranslation(
             // lack of floating point precision
@@ -26,6 +28,14 @@ void BaseFootprint::onPositionUpdate(const nav_msgs::OdometryConstPtr& msg, Enti
     }
     transComp.setRotation(glm::vec3(0.0f, 0.0f, y));
     dynamic.HasNewData = true;
+}
+
+void BaseFootprint::checkParentFrameConsistency(TransformComponent &transComp, const std_msgs::Header &msgHeader) {
+    const std::string& parentTag = transComp.ParentEntity.GetComponent<TagComponent>().Tag;
+    if (msgHeader.frame_id != parentTag) {
+        ROS_WARN_ONCE("BaseFootprint: odom header frame id (%s) and entity parent tag (%s) do not match",
+                      msgHeader.frame_id.c_str(), parentTag.c_str());
+    }
 }
 
 }; // namespace TodStandardEntities

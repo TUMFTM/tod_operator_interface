@@ -1,6 +1,13 @@
 // Copyright 2021 TUMFTM
 #include "Interface.h"
+
 Interface::Interface(int argc, char **argv) : Application(argc, argv) {
+    ros::NodeHandle nh = _ros->get_node_handle();
+    _vehParams = std::make_unique<tod_core::VehicleParameters>(nh);
+    _camParams = std::make_unique<tod_core::CameraParameters>(nh);
+    _lidarParams = std::make_unique<tod_core::LidarParameters>(nh);
+    _transformParams = std::make_unique<tod_core::TransformParameters>(nh);
+
     CreateScene();
 }
 
@@ -10,6 +17,7 @@ void Interface::CreateScene() {
     std::map<std::string, Entity> coordinateSystems;
     CreateCosysEntities(coordinateSystems);
     CreateCameraFramebufferAndTopViewEntities(coordinateSystems);
+    CreateSafeCorridorControlEntities(coordinateSystems);
     CreateDisplayEntities(coordinateSystems);
     CreateVehicleModelEntities(coordinateSystems);
     CreateGridAndFloorEntities(coordinateSystems);
@@ -17,32 +25,53 @@ void Interface::CreateScene() {
     CreateLaneEntities(coordinateSystems);
     CreateLaserScanEntities(coordinateSystems);
 
-    std::string vehicleID{""};
-    _ros->getParam(_ros->getNodeName() + "/vehicleID", vehicleID);
-    bool couldDeserialize = DeserializeEntityData(vehicleID);
-    CreateVideoMeshes(couldDeserialize, vehicleID);
+    bool couldDeserialize = DeserializeEntityData();
+    CreateVideoMeshes(couldDeserialize);
+
+    // check that all initialized entities have a parent except for ftm entity
+    auto view = _activeScene->_registry.view<TransformComponent>();
+    for (auto entity : view) {
+        TransformComponent& myTf = _activeScene->_registry.get<TransformComponent>(entity);
+        const TagComponent& myTag = _activeScene->_registry.get<TagComponent>(entity);
+        if (myTf.ParentEntity.GetHandle() == entt::null) {
+            if (myTag.Tag != "Grid" && myTag.Tag != "ftm" && myTag.Tag != "MainFramebuffer") {
+                myTf.setParent(coordinateSystems.at("base_footprint"));
+                const auto& parentTag =
+                    _activeScene->_registry.get<TagComponent>(myTf.ParentEntity.GetHandle());
+            }
+        }
+    }
 }
 
 void Interface::CreateCosysEntities(std::map<std::string, Entity> &coordinateSystems) {
-    coordinateSystems.insert_or_assign(
-        "ftm", TodStandardEntities::CoordinateSystem::create(
-                   _activeScene, "ftm", RosInterface::getPackagePath()));
+    Entity ftm = TodStandardEntities::CoordinateSystem::create(_activeScene, "ftm");
+    coordinateSystems.insert_or_assign(ftm.GetComponent<TagComponent>().Tag, ftm);
 
-    coordinateSystems.insert_or_assign("base_footprint",
-                                       TodStandardEntities::CoordinateSystem::create(
-                                           _activeScene, "base_footprint",
-                                           RosInterface::getPackagePath())).first->second;
-    coordinateSystems.at("base_footprint").AddComponent<DynamicDataComponent>();
-    // has new data for first render loop iteration
-    coordinateSystems.at("base_footprint").GetComponent<DynamicDataComponent>().HasNewData = true;
-    _activeScene->setBaseFootPrint(coordinateSystems.at("base_footprint").GetHandle());
-    _ros->addSubscriber<nav_msgs::Odometry>("/Operator/VehicleBridge/odometry",
-                                            TodStandardEntities::BaseFootprint::onPositionUpdate,
-                                            coordinateSystems.at("base_footprint"));
+    Entity bf = TodStandardEntities::CoordinateSystem::create(_activeScene, "base_footprint");
+    DynamicDataComponent& dyn = bf.AddComponent<DynamicDataComponent>();
+    dyn.HasNewData = true; // has new data for first render loop iteration
+    _activeScene->setBaseFootPrint(bf.GetHandle());
+    _ros->addSubscriber<nav_msgs::Odometry>(
+        "/Operator/VehicleBridge/odometry", TodStandardEntities::BaseFootprint::onPositionUpdate, bf);
+    coordinateSystems.insert_or_assign(bf.GetComponent<TagComponent>().Tag, bf);
+    bf.GetComponent<TransformComponent>().setParent(ftm);
 
-    TodStandardEntities::CoordinateSystem::createTransformTree(
-        coordinateSystems, _activeScene,
-        RosInterface::getPackagePath(), coordinateSystems.at("base_footprint"));
+    std::string parentTag = bf.GetComponent<TagComponent>().Tag;
+    for (const auto& tf : _transformParams->get_transforms()) {
+        geometry_msgs::TransformStamped tf2parent = _ros->tfLookup(parentTag, tf.child_frame_id);
+        const std::string& child = tf2parent.child_frame_id;
+        Entity newCosys = TodStandardEntities::CoordinateSystem::create(_activeScene, "Cosys" + child);
+        auto &tfCmp = newCosys.GetComponent<TransformComponent>();
+        tfCmp.setTranslation(glm::vec3(tf2parent.transform.translation.x,
+                                       tf2parent.transform.translation.y,
+                                       tf2parent.transform.translation.z));
+        double y, p, r;
+        tf2::getEulerYPR(tf2parent.transform.rotation, y, p, r);
+        tfCmp.setRotation(glm::vec3(r, p, y));
+        newCosys.GetComponent<TransformComponent>().setParent(bf);
+        newCosys.GetComponent<RenderableElementComponent>().StaticShow = false;
+        coordinateSystems.insert_or_assign(child, newCosys);
+    }
 }
 
 void Interface::CreateDisplayEntities(const std::map<std::string, Entity> &coordinateSystems) {
@@ -75,53 +104,46 @@ void Interface::CreateDisplayEntities(const std::map<std::string, Entity> &coord
 }
 
 void Interface::CreateVehicleModelEntities(const std::map<std::string, Entity> &coordinateSystems) {
-    std::string vehicleID;
-    float track_width{0};
-    float distance_front_axle{0};
-    float distance_rear_axle{0};
-    _ros->getParam(_ros->getNodeName() + "/vehicleID", vehicleID);
-    _ros->getParam(_ros->getNodeName() + "/track_width", track_width);
-    _ros->getParam(_ros->getNodeName() + "/distance_front_axle", distance_front_axle);
-    _ros->getParam(_ros->getNodeName() + "/distance_rear_axle", distance_rear_axle);
-
-    std::string modelPath = "/vehicle_config/" + vehicleID + "/model-mesh/";
+    std::string modelPath = "/vehicle_config/" + _vehParams->get_vehicle_id() + "/model-mesh/";
+    double zScaling = 0.1;
     tofGL::ModelLoader *loader = new tofGL::ModelLoader(_activeScene,
                                                         RosInterface::getPackagePath("tod_vehicle_config")
                                                             + modelPath);
     Entity vehicleModel = loader->loadModel("model_chassis", coordinateSystems.at("base_footprint"),
-                                            glm::vec3(1.0f, 1.0f, 0.01f),
+                                            glm::vec3(1.0f, 1.0f, zScaling),
                                             glm::vec3(glm::radians(0.0f), 0.0f, 0.0f),
                                             RosInterface::getPackagePath());
-    vehicleModel.GetComponent<TransformComponent>().setTranslation(glm::vec3(0.0f, 0.0f, 0.025f));
     Entity steeringWheel = loader->loadModel("model_steeringWheel", coordinateSystems.at("base_footprint"),
                                              glm::vec3(1.0f, 1.0f, 1.0f),
                                              glm::vec3(0.0f, 0.0f , 0.0f),
                                              RosInterface::getPackagePath());
     Entity wheelFrontLeft = loader->loadModel("model_wheel", coordinateSystems.at("base_footprint"),
-                                              glm::vec3(1.0f, 1.0f, 0.1f),
+                                              glm::vec3(1.0f, 1.0f, zScaling),
                                               glm::vec3(0.0f, 0.0f, glm::radians(0.0f)),
                                               RosInterface::getPackagePath());
     Entity wheelFrontRight = loader->loadModel("model_wheel", coordinateSystems.at("base_footprint"),
-                                               glm::vec3(1.0f, 1.0f, 0.1f),
+                                               glm::vec3(1.0f, 1.0f, zScaling),
                                                glm::vec3(0.0f, 0.0f, glm::radians(180.0f)),
                                                RosInterface::getPackagePath());
     Entity wheelRearLeft = loader->loadModel("model_wheel", coordinateSystems.at("base_footprint"),
-                                             glm::vec3(1.0f, 1.0f, 0.1f),
+                                             glm::vec3(1.0f, 1.0f, zScaling),
                                              glm::vec3(0.0f, 0.0f, glm::radians(0.0f)),
                                              RosInterface::getPackagePath());
     Entity wheelRearRight = loader->loadModel("model_wheel", coordinateSystems.at("base_footprint"),
-                                              glm::vec3(1.0f, 1.0f, 0.1f),
+                                              glm::vec3(1.0f, 1.0f, zScaling),
                                               glm::vec3(0.0f, 0.0f, glm::radians(180.0f)),
                                               RosInterface::getPackagePath());
+    float zPos = 0.1;
+    vehicleModel.GetComponent<TransformComponent>().setTranslation(glm::vec3(0.0f, 0.0f, zPos));
     wheelFrontLeft.GetComponent<TransformComponent>().setTranslation(
-        glm::vec3(distance_front_axle, track_width/2.0, 0.0f));
-    steeringWheel.GetComponent<TransformComponent>().setTranslation(glm::vec3(0.3f, 0.3f, 0.3f));
+        glm::vec3(_vehParams->get_distance_front_axle(), _vehParams->get_track_width()/2.0, zPos));
+    steeringWheel.GetComponent<TransformComponent>().setTranslation(glm::vec3(0.3f, 0.3f, zPos));
     wheelFrontRight.GetComponent<TransformComponent>().setTranslation(
-        glm::vec3(distance_front_axle, -track_width/2.0, 0.0f));
+        glm::vec3(_vehParams->get_distance_front_axle(), -_vehParams->get_track_width()/2.0, zPos));
     wheelRearLeft.GetComponent<TransformComponent>().setTranslation(
-        glm::vec3(-distance_rear_axle, track_width/2.0, 0.0f));
+        glm::vec3(-_vehParams->get_distance_rear_axle(), _vehParams->get_track_width()/2.0, zPos));
     wheelRearRight.GetComponent<TransformComponent>().setTranslation(
-        glm::vec3(-distance_rear_axle, -track_width/2.0, 0.0f));
+        glm::vec3(-_vehParams->get_distance_rear_axle(), -_vehParams->get_track_width()/2.0, zPos));
 }
 
 void Interface::CreateGridAndFloorEntities(const std::map<std::string, Entity> &coordinateSystems) {
@@ -137,31 +159,25 @@ void Interface::CreateCameraFramebufferAndTopViewEntities(const std::map<std::st
     Entity mainFramebuffer = _activeScene->CreateEntity("MainFramebuffer");
     auto& framebuffer = mainFramebuffer.AddComponent<FrameBufferComponent>(true);
     framebuffer.CameraEntity = camera.GetHandle();
-// callback switches camera position to lock backwards (gear rear, InvertSteeringInGearReverse in tod_command_creation.launch)
-//    _ros->addSubscriber<tod_msgs::VehicleData>("/Operator/VehicleBridge/vehicle_data",
-//                                               TodStandardEntities::Camera::onGearUpdate, camera);
+    // callback switches camera position to lock backwards (gear rear, InvertSteeringInGearReverse
+    // in tod_command_creation.launch)
+    _ros->addSubscriber<tod_msgs::VehicleData>("/Operator/VehicleBridge/vehicle_data",
+                                               TodStandardEntities::Camera::onGearUpdate, camera);
 }
 
 void Interface::CreateVideoEntities(const std::map<std::string, Entity> &coordinateSystems) {
     std::vector<Entity> videos;
-    for (int i=0; i <= 10; ++i) {
-        std::string paramName = std::string(RosInterface::getNodeName() + "/camera" + std::to_string(i) + "/name");
-        if (_ros->hasParam(paramName)) {
-            std::string videoName{""};
-            _ros->getParam(paramName, videoName);
-            videoName.erase(videoName.begin()); // removes '/'
-            bool isFisheye;
-            _ros->getParam(std::string(RosInterface::getNodeName() + "/camera" + std::to_string(i) + "/is_fisheye"),
-                           isFisheye);
-            videos.emplace_back(TodStandardEntities::Video::create(
-                _activeScene, videoName, isFisheye, coordinateSystems.at("base_footprint")));
-            std::string imageTopic = "/Operator/Video/" + videoName + "/image_raw";
-            _ros->addSubscriber<sensor_msgs::Image>(
-                imageTopic, TodStandardEntities::Video::onImageReceived, videos.back());
-            std::string projectionTopic = "/Operator/Projection/" + videoName + "/image_raw";
-            _ros->addSubscriber<sensor_msgs::Image>(
-                projectionTopic, TodStandardEntities::Video::onProjectionReceived, videos.back());
-        }
+    for (const auto& cam : _camParams->get_sensors()) {
+        std::string videoName = cam.operator_name;
+        videoName.erase(videoName.begin()); // removes '/'
+        videos.emplace_back(TodStandardEntities::Video::create(
+            _activeScene, videoName, cam.is_fisheye, coordinateSystems.at("base_footprint")));
+        std::string imageTopic = "/Operator/Video/" + videoName + "/image_raw";
+        _ros->addSubscriber<sensor_msgs::Image>(
+            imageTopic, TodStandardEntities::Video::onImageReceived, videos.back());
+        std::string projectionTopic = "/Operator/Projection/" + videoName + "/image_raw";
+        _ros->addSubscriber<sensor_msgs::Image>(
+            projectionTopic, TodStandardEntities::Video::onProjectionReceived, videos.back());
     }
 }
 
@@ -189,36 +205,33 @@ void Interface::CreateLaneEntities(const std::map<std::string, Entity> &coordina
 }
 
 void Interface::CreateLaserScanEntities(const std::map<std::string, Entity> &coordinateSystems) {
-    // TODO(Andi): parse sensors-lidar and initialize laser scan entities accordingly
-    if (coordinateSystems.find("LidarFront") != coordinateSystems.end()) {
-        Entity frontLaserScan = TodStandardEntities::LaserScan::create(
-            _activeScene, "Lidar Front Scan", RosInterface::getPackagePath());
-        _ros->addSubscriber<sensor_msgs::LaserScan>(
-            "/Operator/Lidar/LidarFront/scan",
-            TodStandardEntities::LaserScan::onLaserScanReceived, frontLaserScan, coordinateSystems);
-    }
-    if (coordinateSystems.find("LidarRear") != coordinateSystems.end()) {
-        Entity rearLaserScan = TodStandardEntities::LaserScan::create(
-            _activeScene, "Lidar Rear Scan", RosInterface::getPackagePath());
-        _ros->addSubscriber<sensor_msgs::LaserScan>(
-            "/Operator/Lidar/LidarRear/scan",
-            TodStandardEntities::LaserScan::onLaserScanReceived, rearLaserScan, coordinateSystems);
+    for (const auto &lidar : _lidarParams->get_sensors()) {
+        if (!lidar.is_3D) {
+            Entity laserScan = TodStandardEntities::LaserScan::create(
+                _activeScene, lidar.name, RosInterface::getPackagePath());
+            _ros->addSubscriber<sensor_msgs::LaserScan>(
+                "/Operator/Lidar" + lidar.name + "/scan",
+                TodStandardEntities::LaserScan::onLaserScanReceived, laserScan, coordinateSystems);
+            // some default parent is needed
+            laserScan.GetComponent<TransformComponent>().setParent(coordinateSystems.at("base_footprint"));
+        }
     }
 }
 
-
-bool Interface::DeserializeEntityData(const std::string &vehicleID) {
+bool Interface::DeserializeEntityData() {
     auto view = _activeScene->_registry.view<TagComponent, VideoComponent>();
     std::vector<Entity> entities;
     for (auto& entityHandle : view)
         entities.emplace_back(entityHandle, _activeScene.get());
-    bool ret = Serialization::DeserializeEntities(_ros->getPackagePath(), vehicleID, entities);
-    if (!ret)
-        ROS_WARN("%s: First launch of hmi with vehicle id %s.", _ros->getNodeName().c_str(), vehicleID.c_str());
+    bool ret = Serialization::DeserializeEntities(_ros->getPackagePath(), _camParams->get_vehicle_id(), entities);
+    if (!ret) {
+        ROS_WARN("%s: First launch of hmi with vehicle id %s.", _ros->getNodeName().c_str(),
+                 _camParams->get_vehicle_id().c_str());
+    }
     return ret;
 }
 
-void Interface::CreateVideoMeshes(const bool couldDeserialize, const std::string &vehicleID) {
+void Interface::CreateVideoMeshes(const bool couldDeserialize) {
     auto videoHandles = _activeScene->_registry.view<VideoComponent>();
     std::vector<Entity> videoEntities;
     for (auto videoHandle : videoHandles)
@@ -241,7 +254,7 @@ void Interface::CreateVideoMeshes(const bool couldDeserialize, const std::string
         }
         // initialize mesh depending on camera type
         if (!video.IsFisheye) {
-            PinholeModel camMdl(video.CameraName, vehicleID);
+            PinholeModel camMdl(video.CameraName, _camParams->get_vehicle_id());
             _ros->getParam(_ros->getNodeName() + "/" + video.CameraName + "/image_width", video.WidthRaw);
             _ros->getParam(_ros->getNodeName() + "/" + video.CameraName + "/image_height", video.HeightRaw);
             futures.emplace_back(
@@ -249,7 +262,7 @@ void Interface::CreateVideoMeshes(const bool couldDeserialize, const std::string
                            TodStandardEntities::Video::init_mesh_from_pinhole_model,
                            std::ref(videoEntity), camMdl, tf2cam));
         } else {
-            OcamModel camMdl(video.CameraName, vehicleID);
+            OcamModel camMdl(video.CameraName, _camParams->get_vehicle_id());
             video.WidthRaw = camMdl.width_raw;
             video.HeightRaw = camMdl.height_raw;
             futures.emplace_back(
@@ -258,4 +271,13 @@ void Interface::CreateVideoMeshes(const bool couldDeserialize, const std::string
                            std::ref(videoEntity), camMdl, tf2cam));
         }
     }
+}
+
+
+void Interface::CreateSafeCorridorControlEntities(const std::map<std::string, Entity> &coordinateSystems) {
+    Entity freeCorridor = TodStandardEntities::Polygon::create(
+        _activeScene, "FreeCorridor", RosInterface::getPackagePath());
+    _ros->addSubscriber<tod_msgs::ColoredPolygon>(
+        "/Operator/SafeCorridorControl/corridor",
+        TodStandardEntities::Polygon::onColoredPolygonReceived, freeCorridor, coordinateSystems);
 }

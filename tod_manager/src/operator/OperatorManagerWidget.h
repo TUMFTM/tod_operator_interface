@@ -80,7 +80,7 @@ public slots:
     void on_PushButton_WayPointControl_clicked();
     void on_PushButton_PathGuidance_clicked();
     void on_PushButton_ObjectModification_clicked();
-    void on_PushButton_ClothoidControl_clicked();
+    void on_PushButton_SafeCorridorControl_clicked();
     void on_PushButton_BrowseAndOk_clicked();
     void on_PushButton_VideoRate_Single_clicked();
     void on_PushButton_VideoRate_Collective_clicked();

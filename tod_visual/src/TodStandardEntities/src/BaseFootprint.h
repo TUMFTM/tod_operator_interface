@@ -13,6 +13,7 @@ public:
 
 private:
     BaseFootprint() = default;
+    static void checkParentFrameConsistency(TransformComponent &transComp, const std_msgs::Header &msgHeader);
 };
 
 }; // namespace TodStandardEntities
