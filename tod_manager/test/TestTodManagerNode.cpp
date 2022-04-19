@@ -1,4 +1,4 @@
-// Copyright 2020 Schimpe schimpe@ftm.mw.tum.de
+// Copyright 2020 Schimpe
 
 #include <ros/ros.h>
 #include "tod_msgs/Status.h"

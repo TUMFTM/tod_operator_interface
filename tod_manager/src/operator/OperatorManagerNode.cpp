@@ -1,4 +1,4 @@
-// Copyright 2020 Feiler feiler@ftm.mw.tum.de
+// Copyright 2020 Feiler
 #include <ros/ros.h>
 #include <QApplication>
 #include "OperatorManager.h"
