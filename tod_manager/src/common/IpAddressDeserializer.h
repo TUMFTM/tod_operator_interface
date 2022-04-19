@@ -1,23 +1,14 @@
 // Copyright 2021 Feiler
-
-#include <yaml-cpp/yaml.h>
-#include <fstream>
 #include <string>
 #include <vector>
+#include <tod_core/YamlLoader.h>
 
-class IpAddressDeserializer {
-public:
-    explicit IpAddressDeserializer(const std::string& pathToInitialIpAddressFile,
-        const std::string& searchedKey);
-    void execute();
-    std::vector<std::string> getIpAddresses();
+namespace IpAddressDeserializer {
 
-private:
-    std::string _pathToInitialIpAddressFile;
-    std::string _searchedKey;
-    std::vector<std::string> _ipAddresses;
-    YAML::Node _node;
+std::vector<std::string> load(const std::string& filePath, const std::string& key)  {
+    YamlLoader loader;
+    loader.load_from_path(filePath);
+    return loader.get_param<std::vector<std::string>>(key);
+}
 
-    void catchAndPrintErrorsWhenGettingNodeAtSearchedKey();
-    void pushIpAddressesIntoVector();
-};
+}

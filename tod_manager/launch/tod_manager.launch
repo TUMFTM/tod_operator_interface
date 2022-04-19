@@ -11,10 +11,8 @@
     </node>
 </group>
 
-<group ns="Vehicle/Manager" if="$(arg isVehicle)">
-    <node name="VehicleManager" pkg="tod_manager" type="VehicleManager" output="screen">
-        <!-- space for params -->
-    </node>
+<group ns="Vehicle/Manager" if="$(eval isVehicle)">
+    <node name="VehicleManager" pkg="tod_manager" type="VehicleManager" output="screen"/>
 </group>
 
 </launch>

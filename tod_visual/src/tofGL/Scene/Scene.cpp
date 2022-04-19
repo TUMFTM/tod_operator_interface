@@ -21,8 +21,7 @@ void Scene::OnUpdate() {
     UpdateCameras();
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    if (modelPoseChanged())
-        UpdateModel();
+    UpdateModel();
 
     auto t2 = std::chrono::high_resolution_clock::now();
     UploadData();
@@ -81,10 +80,10 @@ void Scene::UpdateCameras() {
         auto& transform = _registry.get<TransformComponent>(_registry.get<FrameBufferComponent>(entity).CameraEntity);
         if (_registry.has<VRComponent>(entity)) {
             auto& vr = _registry.get<VRComponent>(entity);
-            _vrSystem.calcProjectionMatrix(camera, vr); // Todo: Does not change.. only on init?
+            _vrSystem.calcProjectionMatrix(camera, vr);
             _vrSystem.calcViewMatrix(camera, vr, transform);
         } else {
-            // TODO(Simon): Projection currently changed on init and on WIndow Resize... what about other framebuffers
+
             CameraSystem::CalcViewMatrix(camera, transform);
         }
     }
@@ -189,7 +188,7 @@ void Scene::Init(const unsigned int width, const unsigned int height) {
             }
         }
     }
-    // TODO(Simon): cleanup; handle size of window with framebuffer...
+
     {
         bool mainFramebufferSpecified{false};
         auto view = _registry.view<FrameBufferComponent>();
@@ -203,7 +202,7 @@ void Scene::Init(const unsigned int width, const unsigned int height) {
             auto& camera = _registry.get<CameraComponent>(framebuffer.CameraEntity);
             CameraSystem::OnWindowSizeChanged(camera, framebuffer.RenderWidth, framebuffer.RenderHeight);
 
-            // TODO(Simon): check if renderable in entity
+
             if (!framebuffer.IsDefaultFramebuffer) {
                 auto &renderable = _registry.get<RenderableElementComponent>(entity);
                 Renderer::GenerateFrameBuffer(framebuffer, renderable);

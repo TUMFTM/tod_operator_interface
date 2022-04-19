@@ -54,9 +54,7 @@ void OperatorManagerWidget::loadWidgetGeometryBeforeShow() {
 void OperatorManagerWidget::fillComboBox_IpAddressBroker_withIpAddr(
         const std::string& pathToInitialIpAddressFile,
         const std::string& searchedKey) {
-    IpAddressDeserializer deserializer(pathToInitialIpAddressFile, searchedKey);
-    deserializer.execute();
-    std::vector<std::string> ipAddresses = deserializer.getIpAddresses();
+    std::vector<std::string> ipAddresses = IpAddressDeserializer::load(pathToInitialIpAddressFile, searchedKey);
     for ( auto ipAddress : ipAddresses ) {
         _ui->ComboBox_IpAddressBroker->addItem(QString::fromStdString(ipAddress));
     }
@@ -257,9 +255,9 @@ void OperatorManagerWidget::on_PushButton_ObjectModification_clicked() {
     control_buttons.switchFocusTo(_ui->PushButton_ObjectModification, backgroundGreen);
 }
 
-void OperatorManagerWidget::on_PushButton_ClothoidControl_clicked() {
-    emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_CLOTHOID);
-    control_buttons.switchFocusTo(_ui->PushButton_ClothoidControl, backgroundGreen);
+void OperatorManagerWidget::on_PushButton_SafeCorridorControl_clicked() {
+    emit signal_control_mode_changed(tod_msgs::Status::CONTROL_MODE_SAFECORRIDOR);
+    control_buttons.switchFocusTo(_ui->PushButton_SafeCorridorControl, backgroundGreen);
 }
 
 void OperatorManagerWidget::quitAll() {
@@ -283,8 +281,8 @@ void OperatorManagerWidget::init_control_mode_button_highlighting(const uint8_t 
         case tod_msgs::Status::CONTROL_MODE_PERCEPTION_MODIFICATION :
             control_buttons.switchFocusTo(_ui->PushButton_ObjectModification, backgroundGreen);
         break;
-        case tod_msgs::Status::CONTROL_MODE_CLOTHOID :
-            control_buttons.switchFocusTo(_ui->PushButton_ClothoidControl, backgroundGreen);
+        case tod_msgs::Status::CONTROL_MODE_SAFECORRIDOR :
+            control_buttons.switchFocusTo(_ui->PushButton_SafeCorridorControl, backgroundGreen);
         break;
     }
 }
@@ -333,7 +331,7 @@ void OperatorManagerWidget::register_control_mode_buttons() {
     control_buttons.addWidget(_ui->PushButton_ObjectModification);
     control_buttons.addWidget(_ui->PushButton_SharedControl);
     control_buttons.addWidget(_ui->PushButton_PathGuidance);
-    control_buttons.addWidget(_ui->PushButton_ClothoidControl);
+    control_buttons.addWidget(_ui->PushButton_SafeCorridorControl);
 }
 
 void OperatorManagerWidget::register_input_device_buttons() {

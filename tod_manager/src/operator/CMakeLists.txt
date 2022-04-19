@@ -5,8 +5,6 @@ if(Qt5_VERSION VERSION_LESS QT_MINIMUM_VERSION)
         Installed version: ${Qt5_VERSION}.")
 endif()
 
-find_package(yaml-cpp REQUIRED)
-
 set(TARGET_OPERATOR_NAME OperatorManager)
 
 set(OPERATOR_MANAGER_WIDGET_UI ui/operatorWidget.ui)
@@ -16,7 +14,7 @@ set(OPERATOR_CPP
     OperatorManager.cpp
     IPv4ValidityChecker.cpp
     OperatorManagerWidget.cpp
-    ../common/IpAddressDeserializer.cpp
+    ../common/IpAddressDeserializer.h
     ../common/QtWidgetGroup.cpp)
 
 qt5_wrap_cpp(OPERATOR_CPP ${OPERATOR_H})
@@ -39,7 +37,7 @@ target_link_libraries(${TARGET_OPERATOR_NAME}
     Qt5::Network
     ${catkin_LIBRARIES}
     PahoMqttCpp::paho-mqttpp3
-    ${YAML_CPP_LIBRARIES})
+    )
 
 install(TARGETS ${TARGET_OPERATOR_NAME}
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

@@ -135,7 +135,7 @@ struct CameraComponent {
     glm::vec3 Up{0.0f, 0.0f, 1.0f};
     bool Controllable{false};
     float NearPlane{0.1f};
-    float FarPlane{50.0f};
+    float FarPlane{100.0f};
     float FieldOfView{45.0f};
 
     CameraComponent() = default;

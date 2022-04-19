@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME tod_manager)
 project(${PROJECT_NAME})
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslib tod_msgs tod_network tod_helper)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib tod_msgs tod_network tod_helper tod_core)
 find_package(PahoMqttCpp REQUIRED)
 find_package(Threads)
 
 catkin_package(
-    CATKIN_DEPENDS roscpp roslib tod_msgs tod_network tod_helper)
+    CATKIN_DEPENDS roscpp roslib tod_msgs tod_network tod_helper tod_core)
 
 option(OPERATOR "Build operator targets" ON)
 if (${OPERATOR})

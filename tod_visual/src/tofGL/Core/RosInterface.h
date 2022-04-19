@@ -28,19 +28,10 @@ public:
     geometry_msgs::TransformStamped tfLookup(const std::string& target_frame, const std::string& source_frame);
     bool debug;
 
-    template <typename T, typename TF>
-    void addSubscriber(const std::string& topicName, TF&& func, const Entity& entity) {
+    template <typename T, typename TF, typename... Ts>
+    void addSubscriber(const std::string& topicName, TF&& func , Ts... args) {
         if (_nh) {
-            _subscriberList.push_back(_nh->subscribe<T>(topicName, 1, boost::bind(func, _1, entity)));
-        }
-    }
-
-    template <typename T, typename TF>
-    void addSubscriber(const std::string& topicName, TF&& func,
-                       const Entity& entity, const std::map<std::string, Entity> &coordinateSystems) {
-        if (_nh) {
-            _subscriberList.push_back(_nh->subscribe<T>(
-                topicName, 1, boost::bind(func, _1, entity, coordinateSystems)));
+            _subscriberList.push_back(_nh->subscribe<T>(topicName, 1, boost::bind(func, _1, args...)));
         }
     }
 
@@ -51,6 +42,9 @@ public:
             return false;
         }
         return true;
+    }
+    ros::NodeHandle get_node_handle() {
+        return *_nh.get();
     }
 
 private:
