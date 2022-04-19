@@ -5,10 +5,6 @@
 #include "glm/glm.hpp"
 
 void CameraSystem::CalcViewMatrix(CameraComponent& camera, TransformComponent& transform) {
-    // TODO(Simon): only call this function [CameraController::updatePosition(camera)] on user
-    // input (it does only need an update, when the
-    // relative position between vehicle and camera is changed AND
-    // on application start)
     glm::mat4 CameraTransform = TransformSystem::LocalToWorld(transform);
     glm::mat4 CameraRotation = TransformSystem::LocalToWorldRotation(transform);
     UpdatePositionFromLookAtAndRadius(camera);

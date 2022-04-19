@@ -15,7 +15,7 @@ Entity TopView::create(std::shared_ptr<Scene> scene, const std::string &name, En
     topViewEntity.GetComponent<TransformComponent>().setParent(parent);
 
     auto& transform = topViewEntity.GetComponent<TransformComponent>();
-    transform.setScale(glm::vec3(1.0f, width, height)); // Todo: fix transform after parent probleme..
+    transform.setScale(glm::vec3(1.0f, width, height));
     transform.setTranslation(glm::vec3(3.0f, 0.0f, 3.0f));
 
     auto& framebuffer = topViewEntity.AddComponent<FrameBufferComponent>();
@@ -46,7 +46,7 @@ Entity TopView::create(std::shared_ptr<Scene> scene, const std::string &name, En
 
     Entity TopViewCamera = scene->CreateEntity(name + "Camera");
     TopViewCamera.GetComponent<TransformComponent>().setParent(parent);
-    auto& camera = TopViewCamera.AddComponent<CameraComponent>(); // Todo: fix camera relative to screen Probleme
+    auto& camera = TopViewCamera.AddComponent<CameraComponent>();
     camera.LookAt = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.Position = glm::vec3(0.0f, 0.0f, 15.0f);
     camera.Radius = 0.00001f;

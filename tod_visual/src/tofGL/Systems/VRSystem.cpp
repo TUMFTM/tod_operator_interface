@@ -103,7 +103,6 @@ void VRSystem::calcViewMatrix(CameraComponent& camera, VRComponent& vr, Transfor
         camera.View = glm::mat4(1.0f);
     } else {
         vr::HmdMatrix34_t eyeToHeadTransform = _pHMD->GetEyeToHeadTransform(vr.Eye);
-        //ToDo: use Entity Transform Tree: baseFootprint-> HMD -> VRCamera(Left/Right)
         camera.View =  convertSteamVRMatrixToGLM(eyeToHeadTransform) *_headPose
             * glm::inverse(TransformSystem::LocalToWorld(transform));
     }
