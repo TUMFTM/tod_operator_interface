@@ -18,6 +18,7 @@ void Interface::CreateScene() {
     CreateCosysEntities(coordinateSystems);
     CreateCameraFramebufferAndTopViewEntities(coordinateSystems);
     CreateSafeCorridorControlEntities(coordinateSystems);
+    CreateSharedControlEntities(coordinateSystems);
     CreateDisplayEntities(coordinateSystems);
     CreateVehicleModelEntities(coordinateSystems);
     CreateGridAndFloorEntities(coordinateSystems);
@@ -273,11 +274,32 @@ void Interface::CreateVideoMeshes(const bool couldDeserialize) {
     }
 }
 
-
 void Interface::CreateSafeCorridorControlEntities(const std::map<std::string, Entity> &coordinateSystems) {
     Entity freeCorridor = TodStandardEntities::Polygon::create(
         _activeScene, "FreeCorridor", RosInterface::getPackagePath());
     _ros->addSubscriber<tod_msgs::ColoredPolygon>(
         "/Operator/SafeCorridorControl/corridor",
         TodStandardEntities::Polygon::onColoredPolygonReceived, freeCorridor, coordinateSystems);
+}
+
+void Interface::CreateSharedControlEntities(const std::map<std::string, Entity> &coordinateSystems) {
+    Entity sharedControlObjects = TodStandardEntities::ObjectList::create(
+        _activeScene, "SharedControlObjects", RosInterface::getPackagePath());
+    _ros->addSubscriber<tod_msgs::ObjectList>(
+        "/Operator/SharedControl/avoided_obstacles",
+        TodStandardEntities::ObjectList::processAndStoreMsgIntoObjectListEntity,
+        sharedControlObjects, coordinateSystems);
+
+    Entity predictedPolygon = TodStandardEntities::Polygon::create(
+        _activeScene, "SharedControlPredictedPolygon", RosInterface::getPackagePath());
+    _ros->addSubscriber<tod_msgs::ColoredPolygon>(
+        "/Operator/SharedControl/predicted_polygon",
+        TodStandardEntities::Polygon::onColoredPolygonReceived, predictedPolygon, coordinateSystems);
+    predictedPolygon.GetComponent<TransformComponent>().setTranslation(glm::vec3(0.0f, 0.0f, 0.055f));
+
+    Entity raceTrack = TodStandardEntities::Polygon::create(
+        _activeScene, "SharedControlRaceTrack", RosInterface::getPackagePath());
+    _ros->addSubscriber<tod_msgs::ColoredPolygon>(
+        "/Operator/SharedControl/race_track",
+        TodStandardEntities::Polygon::onColoredPolygonReceived, raceTrack, coordinateSystems);
 }

@@ -53,4 +53,5 @@ private:
     bool DeserializeEntityData();
     void CreateVideoMeshes(const bool couldDeserialize);
     void CreateSafeCorridorControlEntities(const std::map<std::string, Entity> &coordinateSystems);
+    void CreateSharedControlEntities(const std::map<std::string, Entity> &coordinateSystems);
 };
